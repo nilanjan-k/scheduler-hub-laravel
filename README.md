@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 10, 11, 12">
+  <img src="https://img.shields.io/badge/Laravel-11%20%7C%2012%20%7C%2013-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 11, 12, 13">
 </p>
 
 <h1 align="center">🛰️ Scheduler Hub</h1>
@@ -32,6 +32,14 @@ Scheduler Hub goes further:
 | 🔒 **Locked down by default** | Disabled out of the box. Gate-based or callback-based authorization, configurable middleware, and manual execution off unless you explicitly turn it on. |
 
 ---
+
+## Requirements
+
+| Laravel | PHP |
+|---|---|
+| 11.x | 8.2+ |
+| 12.x | 8.2+ |
+| 13.x | 8.3+ |
 
 ## Installation
 

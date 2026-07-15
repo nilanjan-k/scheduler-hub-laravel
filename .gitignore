@@ -1,6 +1,38 @@
+# Dependencies
 /vendor
-/.phpunit.cache
 composer.lock
-.DS_Store
+
+# Testing
+/.phpunit.cache
+.phpunit.result.cache
+/coverage
+
+# Workbench / Testbench scaffolding (generated when running tests)
+/workbench/app
+/workbench/bootstrap/*.php
+/workbench/storage
+/workbench/vendor
+/.phpunit.result.cache
+
+# Static analysis cache
+.phpstan.cache
+
+# Code style
+.php-cs-fixer.cache
+
+# Env files (shouldn't exist in a package repo, but just in case)
+.env
+.env.backup
+
+# IDE / editor
 .idea
 .vscode
+*.iml
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+/build
+/dist
