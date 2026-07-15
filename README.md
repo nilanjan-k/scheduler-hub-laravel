@@ -1,23 +1,37 @@
-# Scheduler Hub for Laravel
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 10, 11, 12">
+</p>
 
-A dashboard for Laravel's task scheduler — see every registered task, its
-next run, run it manually, and (unlike most scheduler-viewer packages) keep
-a **persistent history** of every run with **failure notifications** over
-mail, Slack, and generic webhooks.
+<h1 align="center">🛰️ Scheduler Hub</h1>
 
-Inspired by [scheduler-list-laravel](https://github.com/Akshayp2002/scheduler-list-laravel),
-rebuilt with a different UI and three things that package doesn't have:
+<p align="center">
+  <b>A control center for Laravel's task scheduler.</b><br>
+  See every scheduled task at a glance, trigger runs on demand, and never lose track of what happened — with a persistent run history and real failure alerts.
+</p>
 
-- **Persistent run history** — every scheduled run (not just manual ones)
-  is recorded by hooking Laravel's native `ScheduledTaskStarting` /
-  `ScheduledTaskFinished` / `ScheduledTaskFailed` / `ScheduledTaskSkipped`
-  events, so history stays accurate whether or not anyone opens the dashboard.
-- **Failure notifications** — mail, Slack (incoming webhook), and a signed
-  generic webhook, each independently toggleable.
-- **Stable task IDs** — tasks are identified by a hash of
-  `command + expression + timezone + description`, not their position in
-  `$schedule->events()`. The original approach breaks if the schedule
-  changes between page load and clicking "Run."
+<p align="center">
+  <a href="https://packagist.org/packages/nilanjank/scheduler-hub-laravel"><img src="https://img.shields.io/packagist/v/nilanjank/scheduler-hub-laravel.svg?style=flat-square&color=6366f1" alt="Latest Version on Packagist"></a>
+  <a href="https://github.com/nilanjank/scheduler-hub-laravel/actions"><img src="https://img.shields.io/github/actions/workflow/status/nilanjank/scheduler-hub-laravel/run-tests.yml?branch=main&label=tests&style=flat-square" alt="Tests"></a>
+  <a href="https://packagist.org/packages/nilanjank/scheduler-hub-laravel"><img src="https://img.shields.io/packagist/dt/nilanjank/scheduler-hub-laravel.svg?style=flat-square&color=6366f1" alt="Total Downloads"></a>
+  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-6366f1.svg?style=flat-square" alt="License MIT"></a>
+</p>
+
+---
+
+## Why Scheduler Hub
+
+Most Laravel scheduler dashboards stop at "here's a list of your cron jobs."
+Scheduler Hub goes further:
+
+| | |
+|---|---|
+| 🗂️ **Persistent run history** | Every scheduled run — not just manual ones — is recorded automatically by hooking into Laravel's native scheduler events. History stays accurate even if nobody ever opens the dashboard. |
+| 🔔 **Failure notifications** | Mail, Slack, and signed generic webhooks, each independently toggleable. Know the moment something breaks, wherever your team already looks. |
+| 🆔 **Stable task identity** | Tasks are identified by a hash of their command, expression, timezone, and description — not their position in the schedule list — so the "Run" button always hits the task you meant, even if the schedule changes between page load and click. |
+| 🎨 **Clean, fast dashboard** | Live search, type filters, status badges, and an in-browser output viewer. No build step, no JS framework — just a single Blade view. |
+| 🔒 **Locked down by default** | Disabled out of the box. Gate-based or callback-based authorization, configurable middleware, and manual execution off unless you explicitly turn it on. |
+
+---
 
 ## Installation
 
@@ -27,12 +41,38 @@ php artisan vendor:publish --tag=scheduler-hub-config
 php artisan migrate
 ```
 
-> Rename the `nilanjank` namespace/vendor before publishing to Packagist —
-> it's a placeholder throughout this package.
+## Quick start
+
+```php
+// routes/console.php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('inspire')
+    ->everyMinute()
+    ->description('Displays a random motivational quote.');
+```
+
+```env
+SCHEDULER_HUB_ENABLED=true
+```
+
+Visit `http://localhost:8000/scheduler-hub` 🎉
+
+To allow the **Run now** button:
+
+```env
+SCHEDULER_HUB_MANUAL_EXECUTION=true
+```
+
+The **Tasks** tab lists every registered task with its next run and, if
+history is on, its most recent run status. The **History** tab shows every
+recorded run, filterable by status, with full output/error on click.
+
+---
 
 ## Configuration
 
-`config/scheduler-hub.php`:
+Everything lives in `config/scheduler-hub.php`:
 
 ```php
 'enabled' => env('SCHEDULER_HUB_ENABLED', false),
@@ -62,7 +102,7 @@ php artisan migrate
 ],
 ```
 
-### Security
+### 🔒 Security
 
 The dashboard is **disabled by default**. To use it in production:
 
@@ -86,9 +126,9 @@ Or use the `authorize` config callback instead of a Gate:
 'authorize' => fn (\Illuminate\Http\Request $request) => $request->user()?->is_admin === true,
 ```
 
-Never mount this behind only `['web']` middleware on a public app.
+> ⚠️ Never mount this behind only `['web']` middleware on a public app.
 
-### Notifications
+### 🔔 Notifications
 
 Enable the channels you want:
 
@@ -106,58 +146,29 @@ SCHEDULER_HUB_NOTIFY_WEBHOOK_URL="https://example.com/hooks/scheduler"
 SCHEDULER_HUB_NOTIFY_WEBHOOK_SECRET="a-long-random-string"
 ```
 
-Mail and Slack are sent for `failure` by default (`notify_on`). The generic
+Mail and Slack fire on `failure` by default (`notify_on`). The generic
 webhook always fires for whichever statuses are in `notify_on`, so it can
-also be used for success pings if you set `notify_on` to include `success`.
+double as a success ping too if you add `success` to that list.
 
-Webhook requests are signed via an `X-Scheduler-Hub-Signature` header
-(HMAC-SHA256 of the raw JSON body) when a secret is configured — verify it
-on the receiving end before trusting the payload.
+Webhook requests are signed with an `X-Scheduler-Hub-Signature` header
+(HMAC-SHA256 of the raw JSON body) whenever a secret is configured — verify
+it on the receiving end before trusting the payload.
 
-### Run history retention
+### 🗑️ Run history retention
 
-```bash
-php artisan schedule:list # sanity check your tasks are registered
-```
-
-Schedule the prune command yourself in `routes/console.php`:
+Old runs don't accumulate forever — schedule the built-in prune command:
 
 ```php
+// routes/console.php
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('scheduler-hub:prune')->daily();
 ```
 
-## Usage
+Retention window is controlled by `history.retention_days` in the config.
 
-1. Register scheduled tasks as usual in `routes/console.php`:
-
-```php
-use Illuminate\Support\Facades\Schedule;
-
-Schedule::command('inspire')
-    ->everyMinute()
-    ->description('Displays a random motivational quote.');
-```
-
-2. Enable and visit the dashboard:
-
-```env
-SCHEDULER_HUB_ENABLED=true
-```
-
-`http://localhost:8000/scheduler-hub`
-
-3. The **Tasks** tab lists every registered task with its next run and,
-   if history is on, its most recent run status. The **History** tab shows
-   every recorded run, filterable by status, with full output/error on click.
-
-4. To allow the **Run now** button:
-
-```env
-SCHEDULER_HUB_MANUAL_EXECUTION=true
-```
+---
 
 ## License
 
-MIT.
+Released under the [MIT License](LICENSE.md).
