@@ -1,0 +1,61 @@
+{
+    "name": "nilanjank/scheduler-hub-laravel",
+    "description": "A Laravel scheduled-task dashboard with persistent run history and failure notifications (mail, Slack, webhook).",
+    "keywords": [
+        "laravel",
+        "scheduler",
+        "cron",
+        "dashboard",
+        "task-manager",
+        "notifications",
+        "run-history"
+    ],
+    "homepage": "https://github.com/nilanjank/scheduler-hub-laravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Your Name",
+            "email": "you@example.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/console": "^10.0||^11.0||^12.0",
+        "illuminate/contracts": "^10.0||^11.0||^12.0",
+        "illuminate/database": "^10.0||^11.0||^12.0",
+        "illuminate/http": "^10.0||^11.0||^12.0",
+        "illuminate/notifications": "^10.0||^11.0||^12.0",
+        "illuminate/support": "^10.0||^11.0||^12.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.14",
+        "orchestra/testbench": "^8.0||^9.0||^10.0",
+        "pestphp/pest": "^2.0||^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nilanjank\\SchedulerHub\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nilanjank\\SchedulerHub\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nilanjank\\SchedulerHub\\SchedulerHubServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
